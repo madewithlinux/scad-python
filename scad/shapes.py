@@ -163,6 +163,10 @@ class RotateV(NamedBlock):
     v: Vec3d
     exprs: List[WritableExpr]
 
+    @property
+    def blockname(self) -> str:
+        return 'rotate'
+
     def in_parenthesis(self):
         return f"a={self.a_deg},v={self.v.bracketed}"
 
@@ -173,6 +177,10 @@ class RotateC(NamedBlock):
     deg_y: float
     deg_z: float
     exprs: List[WritableExpr]
+
+    @property
+    def blockname(self) -> str:
+        return 'rotate'
 
     def in_parenthesis(self):
         return f"[{self.deg_x},{self.deg_y},{self.deg_z}]"
@@ -205,6 +213,49 @@ class Tube(WritableExpr):
     def r1WallHeight(r1: float, wall: float, h: float) -> 'Tube':
         r2 = r1 + wall
         return Tube(r1, r2, h)
+
+
+@dataclass
+class EdgeFillet(WritableExpr):
+    r: float
+    d: float
+
+    def write(self) -> str:
+        r = self.r
+        d = self.d
+        base = Cube(d, 2 * r, 2 * r)
+
+        remove = Hull([
+            Translate(Vec3d(d, r, r), [Sphere(r)]),
+            Translate(Vec3d(-d, r, r), [Sphere(r)]),
+        ])
+
+        solid = Difference([
+            base,
+            remove,
+        ])
+
+        return solid.write()
+
+
+@dataclass
+class FilletCube(WritableExpr):
+    x: float
+    y: float
+    z: float
+    r: float
+
+    def write(self) -> str:
+        r = self.r
+        x = self.x - r
+        y = self.y - r
+        z = self.z - r
+        assert min([x, y, z]) > 0
+        solid = Minkowski([
+            Cube(x, y, z),
+            Sphere(r),
+        ])
+        return solid.write()
 
 
 ###################################################################################################
