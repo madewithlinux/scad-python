@@ -258,6 +258,20 @@ class FilletCube(WritableExpr):
         return solid.write()
 
 
+@dataclass
+class PairwiseHull(WritableExpr):
+    exprs: List[WritableExpr]
+    loop: bool = True
+
+    def write(self) -> str:
+        pairs: List[WritableExpr]
+        if self.loop:
+            pairs = zip(self.exprs, self.exprs[1:] + [self.exprs[0]])
+        else:
+            pairs = zip(self.exprs, self.exprs[1:])
+        return Union([Hull([a, b]) for (a, b) in pairs]).write()
+
+
 ###################################################################################################
 
 def xAxisCube(size: float) -> WritableExpr:
