@@ -1,29 +1,13 @@
+from scad import *
 from scad.shapes import *
 
-print(Cylinder(1, 2, 3).write())
-print(Cone(1, 2, 3).write())
+solid = Minkowski([
+    Sphere(4),
+    Cube(10, 20, 30),
+])
 
-print(Difference([
-    Cube(1, 2, 3),
-    Cube(1, 4, 1),
-]).write())
+solid = FilletCube(4.000000000000001, 20, 30, 4)
 
-print(Hull([
-    Cube(1, 2, 3),
-    Cube(1, 4, 1),
-]).write())
-
-print(Translate(Vec3d(1, 2, 3), [Cube(1, 2, 3)]).write())
-
-
-@dataclass
-class A:
-    xs: List[str]
-
-
-@dataclass
-class B(A):
-    y: int
-
-    def foo(self):
-        return self.xs
+with open('scad-demo.scad', 'w') as f:
+    f.write("$fn=50;\n")
+    f.write(solid.write())

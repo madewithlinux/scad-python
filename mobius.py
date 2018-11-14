@@ -9,7 +9,7 @@ segment = Hull([
 ])
 
 r2 = 80
-angle_delta = 5
+angle_delta = 30
 
 solid = PairwiseHull([
     RotateC(0, 0, d, [
