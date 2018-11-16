@@ -272,6 +272,25 @@ class PairwiseHull(WritableExpr):
         return Union([Hull([a, b]) for (a, b) in pairs]).write()
 
 
+@dataclass
+class RoundCorners(WritableExpr):
+    r: float
+    solid: WritableExpr
+
+    def write(self) -> str:
+        r = self.r
+        cube = Cube(r, r, r)
+        sphere = Sphere(r)
+
+        a = self.solid
+        b = Minkowski([a, cube])
+        c = Difference([b, a])
+        d = Minkowski([c, cube])
+        e = Difference([a, d])
+        return Minkowski([e, sphere]).write()
+
+
+
 ###################################################################################################
 
 def xAxisCube(size: float) -> WritableExpr:
