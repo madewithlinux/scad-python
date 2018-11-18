@@ -279,7 +279,7 @@ class RoundCorners(WritableExpr):
 
     def write(self) -> str:
         r = self.r
-        cube = Cube(r, r, r)
+        cube = Cube(2 * r, 2 * r, 2 * r)
         sphere = Sphere(r)
 
         a = self.solid

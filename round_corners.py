@@ -8,8 +8,15 @@ sharp_solid = Union([
     Cube(10, 50, 10),
 ])
 
-# solid = sharp_solid
-solid = RoundCorners(5, sharp_solid)
+r = 2
+
+solid = Union([
+    Difference([
+        sharp_solid,
+        zAxisCube(1000)
+    ]),
+    RoundCorners(r, sharp_solid),
+])
 
 with open('scad-demo.scad', 'w') as f:
     f.write("$fn=10;\n")
