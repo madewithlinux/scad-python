@@ -284,10 +284,11 @@ class RoundCorners(WritableExpr):
 
         a = self.solid
         b = Minkowski([a, cube])
-        c = Difference([b, a])
-        d = Minkowski([c, cube])
-        e = Difference([a, d])
-        return Minkowski([e, sphere]).write()
+        c = Difference([b, a])  # hollow shell
+        d = Minkowski([c, sphere])  # smaller hollow shell
+        e = Difference([a, d])  # original solid, but cut away by radius
+        f = Minkowski([e, sphere])
+        return f.write()
 
 
 
