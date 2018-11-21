@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import abc
+import typing
 from typing import List
 from typing import Optional
 
@@ -291,7 +292,6 @@ class RoundCorners(WritableExpr):
         return f.write()
 
 
-
 ###################################################################################################
 
 def xAxisCube(size: float) -> WritableExpr:
@@ -304,3 +304,10 @@ def yAxisCube(size: float) -> WritableExpr:
 
 def zAxisCube(size: float) -> WritableExpr:
     return Translate(Vec3d(0, 0, size / 2), [Cube(abs(size), abs(size), abs(size))])
+
+
+def tran(x: float, y: float, z: float, exprs: typing.Union[List[WritableExpr], WritableExpr]) -> WritableExpr:
+    if isinstance(exprs, list):
+        return Translate(Vec3d(x, y, z), exprs)
+    else:
+        return Translate(Vec3d(x, y, z), [exprs])
