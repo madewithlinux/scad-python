@@ -247,9 +247,9 @@ class FilletCube(WritableExpr):
 
     def write(self) -> str:
         r = self.r
-        x = self.x - r
-        y = self.y - r
-        z = self.z - r
+        x = self.x - 2 * r
+        y = self.y - 2 * r
+        z = self.z - 2 * r
         assert min([x, y, z]) > 0
         solid = Minkowski([
             Cube(x, y, z),
