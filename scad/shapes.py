@@ -52,6 +52,16 @@ class Circle(WritableExpr):
 
 
 @dataclass
+class Square(WritableExpr, Centerable):
+    x: float
+    y: float
+    center: bool = True
+
+    def write(self) -> str:
+        return f"square(size=[{self.x},{self.y}]{self.is_centered});"
+
+
+@dataclass
 class Sphere(WritableExpr):
     r: float
 
@@ -156,6 +166,21 @@ class RotateExtrude(NamedBlock):
 
     def in_parenthesis(self):
         return f"angle={self.angle}"
+
+
+@dataclass
+class LinearExtrude(NamedBlock, Centerable):
+    height: float
+    exprs: List[WritableExpr]
+    twist: float = 0
+    center: bool = True
+
+    @property
+    def blockname(self) -> str:
+        return 'linear_extrude'
+
+    def in_parenthesis(self):
+        return f"height={self.height},twist={self.twist}{self.is_centered}"
 
 
 @dataclass
