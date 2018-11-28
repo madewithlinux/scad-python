@@ -11,30 +11,51 @@ def write(solid: WritableExpr):
     sys.exit(0)
 
 
-cable_diameter = 2
 descartes_ratio = 1 / 3 * (3 + 2 * math.sqrt(3))
+cable_diameter = 2
 
-sleeve_diameter = descartes_ratio * cable_diameter * 0.9
+print("ideal sleeve diameter", descartes_ratio * cable_diameter)
+
 sleeve_height = 10
 sleeve_thickness = 0.75
 twist = 90
-cut_height = 0.3
+cut_height = 0.5
 
-r = sleeve_thickness / 2
 
-sleeve_outer_section = RotateExtrude(360, [
-    Hull([
+def cable_sleeve(sleeve_diameter,
+                 sleeve_height,
+                 sleeve_thickness,
+                 twist,
+                 cut_height):
+    r = sleeve_thickness / 2
+
+    sleeve_outer_section = RotateExtrude(360, [Hull([
         tran(sleeve_diameter / 2 + r, +sleeve_height / 2, 0, [Circle(r)]),
         tran(sleeve_diameter / 2 + r, -sleeve_height / 2, 0, [Circle(r)]),
-    ])
-])
+    ])])
 
-solid = Difference([
-    sleeve_outer_section,
-    LinearExtrude(sleeve_height + 3 * r,
-                  [tran(sleeve_diameter / 2 + r, 0, 0, [Square(r * 3, cut_height, center=True)])],
-                  twist=twist,
-                  center=True),
+    return Difference([
+        sleeve_outer_section,
+        LinearExtrude(sleeve_height + 3 * r,
+                      [tran(sleeve_diameter / 2 + r, 0, 0, [Square(r * 3, cut_height, center=True)])],
+                      twist=twist,
+                      center=True),
+    ])
+
+
+spacing = 10
+
+solid = Union([
+    tran(spacing * x,
+         spacing * y,
+         sleeve_height / 2 + sleeve_thickness / 2,  # make sure they're all level on the xy-plane
+         [cable_sleeve(sleeve_diameter=sleeve_diameter,
+                       sleeve_height=sleeve_height,
+                       sleeve_thickness=sleeve_thickness,
+                       twist=twist,
+                       cut_height=cut_height)])
+    for x, sleeve_thickness in enumerate([0.75, 1, 1.25, 1.5, 1.75, 2])
+    for y, sleeve_diameter in enumerate(linspace(3.85, 5, 6))
 ])
 
 write(solid)
