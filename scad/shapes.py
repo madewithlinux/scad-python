@@ -44,6 +44,16 @@ class Centerable:
 
 
 @dataclass
+class Import(WritableExpr, Centerable):
+    path: str
+    convexity: float = 5
+    center: bool = False
+
+    def write(self) -> str:
+        return f"import(\"{self.path}\", convexity={self.convexity}{self.is_centered});"
+
+
+@dataclass
 class Circle(WritableExpr):
     r: float
 
