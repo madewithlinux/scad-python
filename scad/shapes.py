@@ -166,6 +166,27 @@ class Translate(NamedBlock):
 
 
 @dataclass
+class Scale(NamedBlock):
+    vec: Vec3d
+    exprs: List[WritableExpr]
+
+    def in_parenthesis(self):
+        return self.vec.bracketed
+
+
+@dataclass
+class Color(NamedBlock):
+    vec: Vec3d
+    exprs: List[WritableExpr]
+
+    def in_parenthesis(self):
+        return self.vec.bracketed
+
+    # def write(self) -> str:
+    #     return f"""color(c={self.in_parenthesis()}, alpha=1.0) {{\n{ self.inner_exprs() }\n}}\n"""
+
+
+@dataclass
 class RotateExtrude(NamedBlock):
     angle: float
     exprs: List[WritableExpr]
