@@ -80,6 +80,28 @@ supports = Union([
     for d in frange(0, 360, 360 / n_supports)
 ])
 
+############## funnel
+funnel_radius = spout_radius * 2
+funnel_height = spout_height * 2
+funnel_curve_rad = inner_wall.r2 + 0.1
+funnel_z_offset = wall_thickness * (funnel_height / funnel_radius)
+funnel_r_offset = wall_thickness
+funnel_point_cutoff = 12
+outer_funnel = Difference([
+    tran(0, 0, funnel_height / 2, [Cone(funnel_height, 0, funnel_radius)]),
+    tran(-funnel_curve_rad, 0, 0, [Cylinder(can_height * 2, funnel_curve_rad, center=False)])
+])
+inner_funnel = Difference([
+    tran(0, 0, funnel_height / 2 + funnel_z_offset, [Cone(funnel_height, 0, funnel_radius)]),
+    tran(-funnel_curve_rad, 0, 0, [Cylinder(can_height * 2, funnel_curve_rad + funnel_r_offset, center=False)])
+])
+funnel_pointed = Difference([outer_funnel, inner_funnel])
+funnel = Difference([
+    tran(0, 0, -funnel_point_cutoff, funnel_pointed),
+    zAxisCube(-10000),
+])
+funnel_printable = Scale(Vec3d(1, 1, -1), [funnel])
+
 solid: WritableExpr = Union([
     Difference([
         Union([
@@ -89,12 +111,14 @@ solid: WritableExpr = Union([
             supports,
         ]),
         spout_shaper,
-    ])
+    ]),
+    # tran(spout_curve_rad, 0, can_height-2, [funnel])
 ])
 
-solid = Difference([solid, yAxisCube(1000)])
+# solid = Difference([solid, yAxisCube(1000)])
 
+# solid = funnel_printable
 
 with open('scad-demo.scad', 'w') as f:
-    f.write("$fn=10;\n")
+    f.write("$fn=30;\n")
     f.write(solid.write())
