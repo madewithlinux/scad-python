@@ -87,19 +87,48 @@ funnel_curve_rad = inner_wall.r2 + 0.1
 funnel_z_offset = wall_thickness * (funnel_height / funnel_radius)
 funnel_r_offset = wall_thickness
 funnel_point_cutoff = 12
+funnel_cut_height_1 = 20
+funnel_cut_height_2 = 40
+
 outer_funnel = Difference([
     tran(0, 0, funnel_height / 2, [Cone(funnel_height, 0, funnel_radius)]),
-    tran(-funnel_curve_rad, 0, 0, [Cylinder(can_height * 2, funnel_curve_rad, center=False)])
+    tran(-funnel_curve_rad, 0, 0, [Cylinder(funnel_cut_height_1, funnel_curve_rad, center=False)])
 ])
 inner_funnel = Difference([
     tran(0, 0, funnel_height / 2 + funnel_z_offset, [Cone(funnel_height, 0, funnel_radius)]),
-    tran(-funnel_curve_rad, 0, 0, [Cylinder(can_height * 2, funnel_curve_rad + funnel_r_offset, center=False)])
+    tran(-funnel_curve_rad, 0, 0, [Cylinder(funnel_cut_height_1, funnel_curve_rad + funnel_r_offset, center=False)])
 ])
+
 funnel_pointed = Difference([outer_funnel, inner_funnel])
+funnel_cut_top_rim = Intersection([
+    tran(-funnel_curve_rad, 0, funnel_cut_height_2,
+         [Cylinder(wall_thickness, funnel_curve_rad + funnel_r_offset, center=False)]),
+    funnel_pointed,
+])
+
+funnel_cut_bottom_rim = Intersection([
+    tran(-funnel_curve_rad, 0, funnel_cut_height_1 - wall_thickness,
+         [Cylinder(wall_thickness, funnel_curve_rad + funnel_r_offset, center=False)]),
+    funnel_pointed,
+])
+
+funnel_slope = tran(10, 0, 0,
+                    PolarHull(0.2, 10,
+                              [tran(-10, 0, 0, [funnel_cut_bottom_rim, funnel_cut_top_rim])],
+                              min_theta=90, max_theta=270
+                              ))
+
+funnel_pointed = Difference([
+    funnel_pointed,
+    tran(-funnel_curve_rad, 0, 0, [Cylinder(funnel_cut_height_2, funnel_curve_rad, center=False)])
+])
+funnel_pointed = Union([funnel_pointed, funnel_slope])
+
 funnel = Difference([
     tran(0, 0, -funnel_point_cutoff, funnel_pointed),
     zAxisCube(-10000),
 ])
+
 funnel_printable = Scale(Vec3d(1, 1, -1), [funnel])
 
 solid: WritableExpr = Union([
@@ -112,12 +141,10 @@ solid: WritableExpr = Union([
         ]),
         spout_shaper,
     ]),
-    # tran(spout_curve_rad, 0, can_height-2, [funnel])
+    tran(spout_curve_rad, 0, can_height - 2, [funnel])
 ])
 
 # solid = Difference([solid, yAxisCube(1000)])
-
-# solid = funnel_printable
 
 with open('scad-demo.scad', 'w') as f:
     f.write("$fn=30;\n")

@@ -3,6 +3,7 @@ import abc
 import typing
 from typing import List
 from typing import Optional
+from scad import frange
 
 
 class WritableExpr(object, metaclass=abc.ABCMeta):
@@ -327,6 +328,28 @@ class PairwiseHull(WritableExpr):
         else:
             pairs = zip(self.exprs, self.exprs[1:])
         return Union([Hull([a, b]) for (a, b) in pairs]).write()
+
+
+@dataclass
+class PolarHull(WritableExpr):
+    dx: float
+    dtheta: float
+    exprs: List[WritableExpr]
+    min_theta: float = 0
+    max_theta: float = 360
+    large_val: float = 1000
+
+    def write(self) -> str:
+        return PairwiseHull([
+            Difference([
+                Union(self.exprs),
+                RotateC(0, 0, theta, [Union([
+                    tran(self.dx, 0, 0, xAxisCube(self.large_val)),
+                    tran(-self.dx, 0, 0, xAxisCube(-self.large_val)),
+                ])])
+            ])
+            for theta in frange(self.min_theta, self.max_theta, self.dtheta)
+        ]).write()
 
 
 @dataclass
