@@ -2,8 +2,11 @@ from scad import *
 from scad.shapes import *
 from math import sqrt
 
+prusa_build_plate = tran(0, 0, -10, [
+    Color(Vec3d(0.5, 0.5, 0.5), [Cube(250, 210, 10)]),
+])
 makerbot_5thgen_build_plate = tran(0, 0, -10, [
-    Color(Vec3d(0.5, 0.5, 0.5), [Cube(252, 199, 10)]),
+    Color(Vec3d(1, 0, 0.0), [Cube(252, 199, 10)]),
 ])
 
 # makerbot_5thgen_build_plate = tran(8,27,0,[
@@ -49,11 +52,18 @@ solid = Union([
     Color(Vec3d(1, 1, 1), [tran(0, 2 * d * sqrt(3), 0, [RotateC(0, 0, 120, [model])]), ]),
     Color(Vec3d(0, 0, 0), [tran(-2 * d, 2 * d * sqrt(3), 0, [RotateC(0, 0, 120, [model])]), ]),
     Color(Vec3d(0, 0, 1), [tran(2 * d, 2 * d * sqrt(3), 0, [RotateC(0, 0, 120, [model])]), ]),
+    #
+    Color(Vec3d(0, 0, 0), [tran(-2 * d, 2 * d * sqrt(3), 0, [RotateC(0, 0, -120, [model])]), ]),
+    Color(Vec3d(1, 1, 1), [tran(0, 2 * d * sqrt(3), 0, [RotateC(0, 0, -120, [model])]), ]),
+    Color(Vec3d(0, 0, 1), [tran(2 * d, 2 * d * sqrt(3), 0, [RotateC(0, 0, -120, [model])]), ]),
+    # does not fit
+    # Color(Vec3d(0, 1, 1), [tran(4 * d, 0, 0, [RotateC(0, 0, 120, [model])]), ]),
 ])
 
-solid = tran(-8, -27, 0, [solid])
+solid = tran(-17, -38, 0, [solid])
 
 # solid = Union([solid, makerbot_5thgen_build_plate])
+# solid = Union([solid, prusa_build_plate])
 
 with open('scad-demo.scad', 'w') as f:
     f.write("$fn=20;\n")
